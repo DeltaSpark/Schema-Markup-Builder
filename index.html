@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+  <title>MVP Live Preview</title>
+</head>
+<body>
+  <div class="container">
+    <div class="column form-column">
+      <label for="nameInput">Name:</label>
+      <input type="text" id="nameInput" placeholder="Type a name..." />
+    </div>
+    <div class="column preview-column">
+      <h2>Preview</h2>
+      <button id="copyBtn">Click to Copy</button>
+      <pre id="preview"></pre>
+      <!-- ARIA live region for screen-reader feedback -->
+      <div id="liveRegion" aria-live="polite" style="position:absolute; left:-9999px;"></div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('nameInput');
+    const preview = document.getElementById('preview');
+
+    function updatePreview() {
+      const value = input.value.trim();
+      const data = {
+        "@context": "http://schema.org",
+        "@type": "Person"
+      };
+      if (value) {
+        data.name = value;
+      }
+      const snippet = `<script type="application/ld+json">\n${JSON.stringify(data, null, 2)}\n<\/script>`;
+      preview.textContent = snippet;
+    }
+
+    input.addEventListener('input', () => {
+      updatePreview();
+    });
+
+    const copyBtn = document.getElementById('copyBtn');
+    // ARIA live region for screen readers
+    const liveRegion = document.getElementById('liveRegion');
+
+    copyBtn.addEventListener('click', () => {
+      const textToCopy = preview.textContent;
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          // Inline feedback
+          const originalLabel = copyBtn.textContent;
+          copyBtn.textContent = 'Copied!';
+          // Screen-reader announcement
+          liveRegion.textContent = 'Copied to clipboard';
+          // Revert after 1 second
+          setTimeout(() => {
+            copyBtn.textContent = originalLabel;
+            liveRegion.textContent = '';
+          }, 1000);
+        })
+        .catch(err => {
+          console.error('Copy failed', err);
+        });
+    });
+
+    updatePreview();
+  </script>
+</body>
+</html>
