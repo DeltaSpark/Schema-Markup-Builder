@@ -25,6 +25,18 @@
     const input = document.getElementById('nameInput');
     const preview = document.getElementById('preview');
 
+    function loadFromHash() {
+      if (location.hash.length > 1) {
+        try {
+          const raw = decodeURIComponent(location.hash.slice(1));
+          const state = JSON.parse(raw);
+          if (state.name) input.value = state.name;
+        } catch (e) {
+          console.warn('Invalid hash state', e);
+        }
+      }
+    }
+
     function updatePreview() {
       const value = input.value.trim();
       const data = {
@@ -36,6 +48,15 @@
       }
       const snippet = `<script type="application/ld+json">\n${JSON.stringify(data, null, 2)}\n<\/script>`;
       preview.textContent = snippet;
+      updateHash();
+    }
+
+    function updateHash() {
+      const state = {};
+      const val = input.value.trim();
+      if (val) state.name = val;
+      const raw = encodeURIComponent(JSON.stringify(state));
+      history.replaceState(null, '', '#' + raw);
     }
 
     input.addEventListener('input', () => {
@@ -66,6 +87,7 @@
         });
     });
 
+    loadFromHash();
     updatePreview();
   </script>
 </body>
