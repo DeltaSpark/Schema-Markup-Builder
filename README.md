@@ -15,6 +15,8 @@ A simple, static web tool for generating schema.org JSON‑LD snippets that desc
 
 This repository provides a self‑contained static HTML, CSS, and JavaScript application that helps content authors and web developers easily create valid [schema.org](https://schema.org/) Person markup in JSON‑LD format. All form inputs—including arrays like `additionalName`, `sameAs`, and `knowsAbout`—are rendered with a modern tag/chip interface. The output is injected into a `<script type="application/ld+json">` block, which can be copied directly or validated via the [Schema.org Validator](https://validator.schema.org/). This whole thing came out of a mix of curiosity, boredom, and an unhealthy respect for structured data.
 
+You can try it out instantly via the [live demo](https://deltaspark.github.io/Schema-Markup-Builder/).
+
 ## Planned Features
 
 - Support for "affiliation" to describe organization relationships.
@@ -33,9 +35,11 @@ cd Schema-Markup-Builder
 
 No build tools or server runtime required—just double-click `index.html` like it's 2005 and enjoy the ride.
 
+Or, skip the download entirely and try the [live demo](https://deltaspark.github.io/Schema-Markup-Builder/) on GitHub Pages.
+
 ## Usage
 
-1. Open `index.html` in your favorite browser.  
+1. Open `index.html` in your favorite browser, or just visit the [live demo](https://deltaspark.github.io/Schema-Markup-Builder/) on GitHub Pages.  
 2. Fill out the form fields on the left pane.  
 3. Observe the live-updated JSON‑LD in the right pane.  
 4. Click “Copy to Clipboard” to grab the `<script>` snippet.  
