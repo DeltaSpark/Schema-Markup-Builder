@@ -11,6 +11,76 @@
     <div class="column form-column">
       <label for="nameInput">Name:</label>
       <input type="text" id="nameInput" placeholder="Type a name..." />
+
+      <label>Additional Names:</label>
+      <div class="chip-container" id="additionalNameContainer">
+        <input type="text" id="additionalNameInput" placeholder="Type a name and press Enter" />
+      </div>
+
+      <label for="pronounsInput">Pronouns:</label>
+      <input type="text" id="pronounsInput" placeholder="e.g. she/her" />
+
+      <label for="urlInput">URL:</label>
+      <input type="url" id="urlInput" placeholder="https://example.com"
+             title="Enter a valid URL (including http:// or https://)" />
+      <div class="error-message" id="urlInput-error" role="alert" aria-live="assertive" style="display:none; color:#ff6b6b; font-size:0.9rem;">
+        Enter a valid URL (including http:// or https://)
+      </div>
+
+      <label for="descInput">Description:</label>
+      <input type="text" id="descInput" placeholder="Short description" />
+
+      <label for="imageInput">Image URL:</label>
+      <input type="url" id="imageInput" placeholder="https://example.com/photo.jpg"
+             title="Enter a valid image URL" />
+      <div class="error-message" id="imageInput-error" role="alert" aria-live="assertive" style="display:none; color:#ff6b6b; font-size:0.9rem;">
+        Enter a valid image URL
+      </div>
+
+      <label for="genderInput">Gender:</label>
+      <input type="text" id="genderInput" placeholder="e.g. Female" />
+
+      <label>Same As URLs:</label>
+      <div class="chip-container" id="sameAsContainer">
+        <input type="url" id="sameAsInput" placeholder="Type a URL and press Enter" />
+      </div>
+
+      <h3>Address</h3>
+      <label for="streetInput">Street Address:</label>
+      <input type="text" id="streetInput" placeholder="Street Address" />
+      <label for="localityInput">Locality/City:</label>
+      <input type="text" id="localityInput" placeholder="Locality" />
+      <label for="regionInput">Region/State:</label>
+      <input type="text" id="regionInput" placeholder="Region" />
+      <label for="postalInput">Postal Code:</label>
+      <input type="text" id="postalInput" placeholder="Postal Code"
+             pattern="^[0-9]{5}(?:-[0-9]{4})?$"
+             title="Enter a 5-digit ZIP or 9-digit ZIP+4 (e.g. 12345 or 12345-6789)" />
+      <div class="error-message" id="postalInput-error" role="alert" aria-live="assertive" style="display:none; color:#ff6b6b; font-size:0.9rem;">
+        Enter a 5-digit ZIP or 9-digit ZIP+4 (e.g. 12345 or 12345-6789)
+      </div>
+      <label for="countryInput">Country:</label>
+      <input type="text" id="countryInput" placeholder="Country" />
+
+      <label for="emailInput">Email:</label>
+      <input type="email" id="emailInput" placeholder="info@example.com"
+             title="Enter a valid email address" />
+      <div class="error-message" id="emailInput-error" role="alert" aria-live="assertive" style="display:none; color:#ff6b6b; font-size:0.9rem;">
+        Enter a valid email address
+      </div>
+
+      <label for="telInput">Telephone:</label>
+      <input type="tel" id="telInput" placeholder="(XXX) XXX-XXXX"
+             pattern="^\\(\\d{3}\\) \\d{3}-\\d{4}$"
+             title="Enter a US phone number in the format (XXX) XXX-XXXX" />
+      <div class="error-message" id="telInput-error" role="alert" aria-live="assertive" style="display:none; color:#ff6b6b; font-size:0.9rem;">
+        Enter a US phone number in the format (XXX) XXX-XXXX
+      </div>
+
+      <label>Knows About:</label>
+      <div class="chip-container" id="knowsAboutContainer">
+        <input type="text" id="knowsAboutInput" placeholder="Type a topic and press Enter" />
+      </div>
     </div>
     <div class="column preview-column">
       <h2>Preview</h2>
@@ -22,8 +92,46 @@
   </div>
 
   <script>
+    let additionalName = [];
+    let sameAs = [];
+    let knowsAbout = [];
+
     const input = document.getElementById('nameInput');
     const preview = document.getElementById('preview');
+
+    function setupChips(inputId, containerId, arrayRef, stateKey) {
+      const inp = document.getElementById(inputId);
+      const container = document.getElementById(containerId);
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && inp.value.trim()) {
+          e.preventDefault();
+          arrayRef.push(inp.value.trim());
+          renderChips();
+          updatePreview();
+          inp.value = '';
+        }
+      });
+      function renderChips() {
+        container.querySelectorAll('.chip').forEach(c => c.remove());
+        arrayRef.forEach((val, idx) => {
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = val;
+          const btn = document.createElement('button');
+          btn.textContent = '×';
+          btn.addEventListener('click', () => {
+            arrayRef.splice(idx,1);
+            renderChips();
+            updatePreview();
+          });
+          chip.appendChild(btn);
+          container.insertBefore(chip, inp);
+        });
+      }
+    }
+    setupChips('additionalNameInput', 'additionalNameContainer', additionalName, 'additionalName');
+    setupChips('sameAsInput', 'sameAsContainer', sameAs, 'sameAs');
+    setupChips('knowsAboutInput', 'knowsAboutContainer', knowsAbout, 'knowsAbout');
 
     function loadFromHash() {
       if (location.hash.length > 1) {
@@ -38,14 +146,30 @@
     }
 
     function updatePreview() {
-      const value = input.value.trim();
       const data = {
-        "@context": "http://schema.org",
-        "@type": "Person"
+        "@context":"http://schema.org",
+        "@type":"Person"
       };
-      if (value) {
-        data.name = value;
+      if (input.value.trim()) data.name = input.value.trim();
+      if (additionalName.length) data.additionalName = additionalName;
+      if (document.getElementById('pronounsInput').value.trim()) data.pronouns = document.getElementById('pronounsInput').value.trim();
+      if (document.getElementById('urlInput').value.trim()) data.url = document.getElementById('urlInput').value.trim();
+      if (document.getElementById('descInput').value.trim()) data.disambiguatingDescription = document.getElementById('descInput').value.trim();
+      if (document.getElementById('imageInput').value.trim()) data.image = document.getElementById('imageInput').value.trim();
+      if (document.getElementById('genderInput').value.trim()) data.gender = document.getElementById('genderInput').value.trim();
+      if (sameAs.length) data.sameAs = sameAs;
+      // address
+      const address = {};
+      ['streetInput','localityInput','regionInput','postalInput','countryInput'].forEach(id => {
+        const v = document.getElementById(id).value.trim();
+        if(v) address[{streetInput:'streetAddress',localityInput:'addressLocality',regionInput:'addressRegion',postalInput:'postalCode',countryInput:'addressCountry'}[id]] = v;
+      });
+      if(Object.keys(address).length) {
+        data.address = Object.assign({"@type":"PostalAddress"}, address);
       }
+      if(document.getElementById('emailInput').value.trim()) data.email = document.getElementById('emailInput').value.trim();
+      if(document.getElementById('telInput').value.trim()) data.telephone = document.getElementById('telInput').value.trim();
+      if(knowsAbout.length) data.knowsAbout = knowsAbout;
       const snippet = `<script type="application/ld+json">\n${JSON.stringify(data, null, 2)}\n<\/script>`;
       preview.textContent = snippet;
       updateHash();
@@ -53,14 +177,98 @@
 
     function updateHash() {
       const state = {};
-      const val = input.value.trim();
-      if (val) state.name = val;
+      // Basic fields
+      if (input.value.trim()) state.name = input.value.trim();
+      if (additionalName.length) state.additionalName = additionalName;
+      const pronouns = document.getElementById('pronounsInput').value.trim();
+      if (pronouns) state.pronouns = pronouns;
+      const url = document.getElementById('urlInput').value.trim();
+      if (url) state.url = url;
+      const desc = document.getElementById('descInput').value.trim();
+      if (desc) state.disambiguatingDescription = desc;
+      const image = document.getElementById('imageInput').value.trim();
+      if (image) state.image = image;
+      const gender = document.getElementById('genderInput').value.trim();
+      if (gender) state.gender = gender;
+      if (sameAs.length) state.sameAs = sameAs;
+      // Address fields
+      const addr = {};
+      const fieldMap = {
+        streetInput: 'streetAddress',
+        localityInput: 'addressLocality',
+        regionInput: 'addressRegion',
+        postalInput: 'postalCode',
+        countryInput: 'addressCountry'
+      };
+      Object.keys(fieldMap).forEach(id => {
+        const v = document.getElementById(id).value.trim();
+        if (v) addr[fieldMap[id]] = v;
+      });
+      if (Object.keys(addr).length) state.address = addr;
+      // Contact
+      const email = document.getElementById('emailInput').value.trim();
+      if (email) state.email = email;
+      const tel = document.getElementById('telInput').value.trim();
+      if (tel) state.telephone = tel;
+      if (knowsAbout.length) state.knowsAbout = knowsAbout;
+      // Encode and replace hash
       const raw = encodeURIComponent(JSON.stringify(state));
       history.replaceState(null, '', '#' + raw);
     }
 
-    input.addEventListener('input', () => {
-      updatePreview();
+    // Add listeners for all inputs to update preview
+    [
+      'nameInput','pronounsInput','urlInput','descInput','imageInput','genderInput',
+      'streetInput','localityInput','regionInput','postalInput','countryInput',
+      'emailInput','telInput'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
+    function attachValidation(id) {
+      const el = document.getElementById(id);
+      const err = document.getElementById(id + '-error');
+      el.addEventListener('input', () => {
+        if (el.checkValidity() || el.value === '') {
+          err.style.display = 'none';
+        } else {
+          err.style.display = 'block';
+        }
+      });
+    }
+    ['urlInput','imageInput','postalInput','emailInput','telInput'].forEach(attachValidation);
+
+    // Auto-format postal code on blur
+    const postalEl = document.getElementById('postalInput');
+    postalEl.addEventListener('blur', () => {
+      let digits = postalEl.value.replace(/\D/g, '');
+      if (digits.length === 9) {
+        postalEl.value = digits.slice(0,5) + '-' + digits.slice(5);
+      } else if (digits.length === 5) {
+        postalEl.value = digits;
+      }
+      // Clear error if now valid
+      const postalErr = document.getElementById('postalInput-error');
+      if (postalEl.checkValidity()) {
+        postalErr.style.display = 'none';
+      }
+    });
+
+    // Auto-format telephone number on blur
+    const telEl = document.getElementById('telInput');
+    telEl.addEventListener('blur', () => {
+      let digits = telEl.value.replace(/\D/g, '');
+      if (digits.length === 10) {
+        telEl.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+      }
+      // Clear error if now valid
+      const telErr = document.getElementById('telInput-error');
+      if (telEl.checkValidity()) {
+        telErr.style.display = 'none';
+      }
+      // Retrigger input validation to update error display
+      telEl.dispatchEvent(new Event('input'));
     });
 
     const copyBtn = document.getElementById('copyBtn');
