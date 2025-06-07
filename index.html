@@ -4,11 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css" />
-  <title>MVP Live Preview</title>
+  <title>Person Schema.org Markup Generator</title>
 </head>
 <body>
   <div class="container">
     <div class="column form-column">
+      <h1>Person Schema.org Markup Generator</h1>
+      <p>Fill out the form to generate a valid Schema.org markup snippet for a person. Once you're done, paste the snippet into <a href="https://validator.schema.org/" target="_blank" rel="noopener">Schema.org's validator</a> to check it.</p>
       <label for="nameInput">Name:</label>
       <input type="text" id="nameInput" placeholder="Type a name..." />
 
@@ -71,7 +73,7 @@
 
       <label for="telInput">Telephone:</label>
       <input type="tel" id="telInput" placeholder="(XXX) XXX-XXXX"
-             pattern="^\\(\\d{3}\\) \\d{3}-\\d{4}$"
+             pattern="^\(\d{3}\) \d{3}-\d{4}$"
              title="Enter a US phone number in the format (XXX) XXX-XXXX" />
       <div class="error-message" id="telInput-error" role="alert" aria-live="assertive" style="display:none; color:#ff6b6b; font-size:0.9rem;">
         Enter a US phone number in the format (XXX) XXX-XXXX
@@ -253,6 +255,7 @@
       if (postalEl.checkValidity()) {
         postalErr.style.display = 'none';
       }
+      updatePreview();
     });
 
     // Auto-format telephone number on blur
@@ -266,6 +269,7 @@
       const telErr = document.getElementById('telInput-error');
       if (telEl.checkValidity()) {
         telErr.style.display = 'none';
+        telEl.setCustomValidity('');
       }
       // Retrigger input validation to update error display
       telEl.dispatchEvent(new Event('input'));
